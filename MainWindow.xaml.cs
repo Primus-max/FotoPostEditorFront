@@ -23,61 +23,20 @@ namespace FotoPostEditor
         {
             InitializeComponent();
 
+            // Обработчик при нажатии клавиш, для отлавливания нужных
             this.KeyDown += MainWindow_KeyDown;
 
+            // Обработчик при загрузки страницы
             Loaded += MainWindow_Loaded;
-
-
-            // Загрузка путей к изображениям из директории
-            //var imageDirectory = @"C:\Users\VKauto\net6.0-windows\tdlib\photos";
-            //_imagePaths = Directory.GetFiles(imageDirectory, "*.jpg").ToList();
-
         }
 
-
-        // Метод получения всех изображения от API
-        private async Task<List<string>> GetAllImageAsync()
-        {
-            string apiUrl = "http://localhost:5054/allImage";
-            List<string> imageUrls = new List<string>();
-
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseBody = await response.Content.ReadAsStringAsync();
-                        imageUrls = JsonConvert.DeserializeObject<List<string>>(responseBody);
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Ошибка при запросе: {response.StatusCode}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Произошла ошибка: {ex.Message}");
-                }
-            }
-
-            return imageUrls;
-        }
-
-
-
+        // Обработчик события при загрузке главного окна
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            // Получаю все изображения
             _imagePaths = await GetAllImageAsync();
 
-            foreach (string imageUrl in _imagePaths)
-            {
-                // Добавьте вашу логику для отображения ссылок на изображения
-                // Например, добавление элементов в ListBox или другой UI-контрол
-            }
-
+            // Колличество изображений
             curCountImage = _imagePaths.Count;
 
             if (_imagePaths.Count > 0)
@@ -93,7 +52,36 @@ namespace FotoPostEditor
             }
         }
 
+        // Метод получения всех изображения от API
+        private async Task<List<string>> GetAllImageAsync()
+        {
+            string apiUrl = "http://localhost:5054/allImage";
+            List<string>? imageUrls = new List<string>();
 
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        imageUrls = JsonConvert.DeserializeObject<List<string>>(responseBody);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Ошибка при запросе к API: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка при запросе к API: {ex.Message}");
+                }
+            }
+
+            return imageUrls;
+        }
 
 
 
